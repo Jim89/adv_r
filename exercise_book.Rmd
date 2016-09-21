@@ -1,0 +1,121 @@
+---
+title: "Advanced R Exercise Notebook"
+output: html_notebook
+---
+
+This notebook contains my attempts at solving the examples, questions and exercises from the [Advanced R](http://adv-r.had.co.nz/) book by Hadley Wickham.
+
+# Data Structures
+
+## Basic questions
+
+1. Three properties of a vector: `type`, `length`, `attributes`.
+2. Four common atomic vectors: logical, double (numberic), integer, character. Two rare types: raw, complex.
+3. Attributes: properties of a vector that can contain metadata and/or other information about the vector (e.g. names). They are get/set using `attributes(my_vector, attribute = "some value")`.
+4. A list is different from an atomic vector in that it can contain a mix of different data types, wherease an atomic vector must have the same type (e.g. all numeric, all character). The same argument applies when comparing a `data.frame` (itself a list) with a matrix.
+5. Yes a list can be a matrix, obtained by using `dim(my_list) <- c(rows, columns)`. A `data.frame` can have a column that is a matrix using `df <- data.frame(a = 1:3, b = I(matrix(1:6, nrow = 3)))`
+6. `is.vector()` and `is.numeric()` are different from `is.list()` and `is.character()` in that the former two are more general, and the latter two more specific. A list _is_ a vector, and so `is.vector(my_list)` will return `TRUE`, and `is.numeric()` simply tests for "number-ness" and will return `TRUE` for both double and integer vectors.
+
+## Vectors
+
+### Questions
+
+1. Test of vector rules:
+
+  * `c(1, FALSE)` will give `#> 1 0`
+  * `c("a", 1)` will give `#> "a" "1"`
+  * `c(list(1), "a")` will give `#> [[1]] [1] 1 [[2]] [1] "a" (a list of lists)`
+  * `c(TRUE, 1L)` will give `#> 1 1`
+  
+2. `unlist()` must be used to convert a list to a vector (and not `as.vector()`) because a list _is_ a vector!
+3. `1 == "1"` returns `TRUE` as the numeric 1 is coerced to character. `-1 < FALSE` is `TRUE` as `FALSE` can be represented by 0 (and is coerced as such). `"one" < 2` is `FALSE` as the 2 is coerced to character, and characters cannot be compared with `<`.
+10. The default missing value, `NA` is a logical vector as logical vectors can be coerced to anything. 
+
+### Exercises
+
+```{r}
+structure(1:5, comment = "my attribute")
+```
+
+This does not print the attribute as `comment` is a reserced attribute that is not printed (see `?comment`).
+
+```{r}
+f1 <- factor(letters)
+f1
+levels(f1) <- rev(levels(f1))
+f1
+```
+
+When the levels of a factor are modified, the factor itself is modified. 
+
+```{r}
+f2 <- rev(factor(letters))
+f2
+```
+
+Produces a factor ordered "backwards", but the levels are taken as default, i.e. "sorted in increasing order of `x`".
+
+```{r}
+f3 <- factor(letters, levels = rev(letters))
+f3
+```
+
+This time the levels are reversed, but the factor remains unaltered (different from `f1` where modifying the levels of an existing factor modifies that factor!).
+
+## Matrices/Arrays
+
+### Exercises
+
+#### 1
+
+```{r}
+my_vec <- 1:5
+dim(my_vec)
+```
+
+Calling `dim` on a vector returns `NULL`.
+
+#### 2
+
+If `is.matrix(x)` is `TRUE` then so is `is.array(x)` because a matrix _is_ an array.
+
+#### 3
+
+```{r}
+x1 <- array(1:5, c(1, 1, 5))
+x2 <- array(1:5, c(1, 5, 1))
+x3 <- array(1:5, c(5, 1, 1))
+```
+`x1` is an array with 5 "higher" dimensions, and each dimension contains an single-valued integer vector.
+`x2` is an array with 1 "higher"dimension containing a matrix with 1 row and 5 columns.
+`x3` is an array with 1 "higher"dimension containing a matrix with 5 rows and 1 column.
+
+## Data frames
+
+### Exercises
+
+#### 1
+
+A `data.frame` contains the following attributes: `nrow`, `ncol`, `colnames` (equivalent to `names`), `rownames`, `dim` (a combination of `nrow` and `ncol`), and `length` (which is the same as `ncol` as it provides the length of the underlying list).
+
+#### 2
+
+`as.matrix` called on a `data.frame` coerces all the data to the same type to form a matrix (which may end up being a character matrix if non-numeric data is present).
+
+#### 3 
+
+A `data.frame` with 0 rows _can_ be created:
+
+```{r}
+data.frame(a = character(), b = numeric(), c = logical())
+```
+
+Similarly, a `data.frame` with 0 columns can be created, it just also has 0 rows:
+
+```{r}
+data.frame()
+```
+
+# Subsetting
+
+
